@@ -1,16 +1,20 @@
 package io.github.unrealpuggy.modernecon.Menu;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
+import org.bukkit.event.inventory.CraftItemEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
 
-public class MenuItem {
+public class MenuItem implements Cloneable {
     @Nullable
     private ItemStack item;
+    private ClickCallback leftClickHandler;
+    private ClickCallback rightClickHandler;
 
 
     @FunctionalInterface
@@ -23,21 +27,19 @@ public class MenuItem {
         void handle(Player player, MenuItem item);
     }
 
-    private ClickCallback leftClickHandler;
-    private ClickCallback rightClickHandler;
-
 
     private MenuItem(@Nullable ItemStack item) {
         this.item = item;
     }
 
     public boolean removeFrom(Menu menu) {
-       return menu.removeItem(this);
+        return menu.removeItem(this);
     }
     // Clicks
 
     public MenuItem onLeftClick(ClickCallback callback) {
         this.leftClickHandler = callback;
+
         return this;
     }
 
@@ -95,6 +97,15 @@ public class MenuItem {
         this.item = item;
 
         return this;
+    }
+
+    public MenuItem clone() throws CloneNotSupportedException {
+//        MenuItem menuItem = (MenuItem) super.clone();
+        MenuItem newMenuItem = ((MenuItem) super.clone()).setItem((this.item != null) ? this.item.clone() : null);
+        newMenuItem.leftClickHandler = leftClickHandler;
+        newMenuItem.rightClickHandler = rightClickHandler;
+
+        return newMenuItem;
     }
 
 }

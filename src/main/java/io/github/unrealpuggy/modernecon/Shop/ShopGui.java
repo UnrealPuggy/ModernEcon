@@ -1,10 +1,9 @@
-package io.github.unrealpuggy.modernecon;
+package io.github.unrealpuggy.modernecon.Shop;
 
 import io.github.unrealpuggy.modernecon.Menu.Menu;
 import io.github.unrealpuggy.modernecon.Menu.MenuItem;
 import net.kyori.adventure.text.Component;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemStack;
 
 public class ShopGui extends Menu {
     int page = 0;
