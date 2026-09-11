@@ -15,7 +15,7 @@ public class MenuItem implements Cloneable {
     private ItemStack item;
     private ClickCallback leftClickHandler;
     private ClickCallback rightClickHandler;
-
+    private ClickCallback clickHandler;
 
     @FunctionalInterface
     public interface ClickCallback {
@@ -43,15 +43,29 @@ public class MenuItem implements Cloneable {
         return this;
     }
 
-    public MenuItem onRightClick(ClickCallback callback) {
-        this.rightClickHandler = callback;
-        return this;
-    }
-
     public MenuItem onLeftClick(SimplerClickCallback callback) {
         this.leftClickHandler = (player, item1, event) -> {
             callback.handle(player, item1);
         };
+        return this;
+    }
+
+    public MenuItem onClick(ClickCallback callback) {
+        this.clickHandler = callback;
+
+        return this;
+    }
+
+    public MenuItem onClick(SimplerClickCallback callback) {
+        this.clickHandler = (player, item1, event) -> {
+            callback.handle(player, item1);
+        };
+        return this;
+    }
+
+
+    public MenuItem onRightClick(ClickCallback callback) {
+        this.rightClickHandler = callback;
         return this;
     }
 
@@ -74,6 +88,10 @@ public class MenuItem implements Cloneable {
     public void onLeftClick(Player player, InventoryClickEvent event) {
         if (this.leftClickHandler != null)
             this.leftClickHandler.handle(player, this, event);
+    }
+   public void onClick(Player player, InventoryClickEvent event) {
+        if (this.clickHandler != null)
+            this.clickHandler.handle(player, this, event);
     }
 
 

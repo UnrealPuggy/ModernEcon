@@ -1,3 +1,4 @@
 name: ModernEconomy
 main: io.github.unrealpuggy.modernecon.ModernEcon
 version: 1.0.0
+api-version: 26.2

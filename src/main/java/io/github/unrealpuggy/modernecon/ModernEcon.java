@@ -4,6 +4,7 @@ import com.mojang.brigadier.Command;
 import com.mojang.brigadier.arguments.DoubleArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
+import io.github.unrealpuggy.modernecon.Economy.EconomyUtil;
 import io.github.unrealpuggy.modernecon.Menu.MenuListener;
 import io.github.unrealpuggy.modernecon.Shop.ShopGui;
 import io.github.unrealpuggy.modernecon.Shop.ShopItem;
@@ -24,6 +25,7 @@ import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.configuration.serialization.ConfigurationSerialization;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
@@ -59,16 +61,21 @@ public class ModernEcon extends JavaPlugin {
         return instance._shopManager;
     }
 
+
     @Override
     public void onEnable() {
         instance = this;
+        ConfigurationSerialization.registerClass(ShopItem.class, "ShopItem");
         saveDefaultConfig();
+//        reloadConfig();
+
         _shopManager = new ShopManager();
 
         _shopManager.loadItems();
 
         registerListener(MenuListener::new);
         LiteralArgumentBuilder<CommandSourceStack> shopCmd = Commands.literal("shop").executes(ctx -> {
+            _shopManager.loadItems();
             Entity executer = ctx.getSource().getExecutor();
             if (!(executer instanceof Player player)) {
                 if (executer != null) {
@@ -80,19 +87,17 @@ public class ModernEcon extends JavaPlugin {
 
             ShopGui.openForPlayer(player);
             return Command.SINGLE_SUCCESS;
-        }).then(Commands.argument("id", StringArgumentType.word()).then(Commands.argument("item", ArgumentTypes.itemStack()).then(Commands.argument("buyPrice", DoubleArgumentType.doubleArg(0.0)).then(Commands.argument("sellPrice", DoubleArgumentType.doubleArg(0.0)).executes(ctx -> {
+        }).then(Commands.argument("id", StringArgumentType.word()).then(Commands.argument("item", ArgumentTypes.itemStack()).then(Commands.argument("buyPrice", DoubleArgumentType.doubleArg(-1)).then(Commands.argument("sellPrice", DoubleArgumentType.doubleArg(-1)).executes(ctx -> {
             String id = ctx.getArgument("id", String.class).toLowerCase();
             ItemStack item = ctx.getArgument("item", ItemStack.class);
             double buyPrice = ctx.getArgument("buyPrice", Double.class);
             double sellPrice = ctx.getArgument("sellPrice", Double.class);
-//            String path = "shop_items." + id;
 
-            getConfig().getConfigurationSection("shop_items").set(id,new ShopItem(id,item,buyPrice,sellPrice));
-//            getConfig().getConfigurationSection("shop_items").getValues()
-//            getConfig().set(path + ".item", item);
-//            getConfig().set(path + ".buyPrice", buyPrice);
-//            getConfig().set(path + ".sellPrice", sellPrice);
+
+
+            _shopManager.shop_items().set(id, new ShopItem(id, item, EconomyUtil.doubleToCents(buyPrice), EconomyUtil.doubleToCents(sellPrice)));
             saveConfig();
+            _shopManager.loadItems();
 
             ctx.getSource().getSender().sendMessage(MiniMessage.miniMessage().deserialize("<green>Successfully added <item> to shop!", Placeholder.component("item", item.displayName())));
             return 1;
