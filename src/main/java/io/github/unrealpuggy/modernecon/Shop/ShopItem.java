@@ -1,5 +1,6 @@
 package io.github.unrealpuggy.modernecon.Shop;
 
+import io.papermc.paper.inventory.tooltip.TooltipContext;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
@@ -29,8 +30,12 @@ public final class ShopItem implements ConfigurationSerializable {
      */
     public ShopItem(String id, ItemStack item, long price, long sellPrice) {
         this.id = id;
-        this.item = item;
+        // May have to use item.clone in the future. Will wait for problems because
+        this.item = item.clone();
+        this.item.setAmount(1);
+
         this.price = price;
+
         this.sellPrice = sellPrice;
     }
 
@@ -51,24 +56,27 @@ public final class ShopItem implements ConfigurationSerializable {
 //    }
     private ItemStack displayedStack = null;
     public ItemStack getDisplayedStack() {
-        if (displayedStack != null) {
-            return displayedStack;
-        }
+//        if (displayedStack != null) {
+//            return displayedStack.clone();
+//        }
         ItemStack stack = item.clone();
         List<Component> lore = Objects.requireNonNullElse(stack.lore(), new ArrayList<>());
         MiniMessage mm = MiniMessage.miniMessage();
 
+        if(!lore.isEmpty() || !stack.computeTooltipLines(TooltipContext.create(),null).isEmpty()) {
+            lore.add(Component.empty());
+        }
         if (buyable()) {
-            lore.add(mm.deserialize("<i:false><green>Buy: $<white><price>", Placeholder.unparsed("price", EconomyUtil.centsToString(price))));
+            lore.add(mm.deserialize("<i:false><#7ed957>Buy: $<white><price>", Placeholder.unparsed("price", EconomyUtil.formatCents(price))));
         }
         if (sellable()) {
 
-            lore.add(mm.deserialize("<i:false><red>Sell: $<white><price>", Placeholder.unparsed("price", EconomyUtil.centsToString(sellPrice))));
+            lore.add(mm.deserialize("<i:false><#ff6b6b>Sell: <red>$<white><price>", Placeholder.unparsed("price", EconomyUtil.formatCents(sellPrice))));
         }
 
         stack.lore(lore);
 
-        return displayedStack = stack;
+        return (displayedStack = stack).clone();
     }
 
     @Override
@@ -99,7 +107,7 @@ public final class ShopItem implements ConfigurationSerializable {
     }
 
     public ItemStack item() {
-        return item;
+        return item.clone();
     }
 
     public long price() {

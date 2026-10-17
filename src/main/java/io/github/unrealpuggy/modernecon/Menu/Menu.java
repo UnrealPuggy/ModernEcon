@@ -2,6 +2,7 @@ package io.github.unrealpuggy.modernecon.Menu;
 
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
+import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
@@ -9,6 +10,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -21,6 +23,10 @@ public abstract class Menu implements InventoryHolder {
 
     public Menu(int rows, Component title) {
         this.inventory = Bukkit.createInventory(this, 9 * rows, title);
+    }
+
+    public static <T extends Menu> void open(T instance,Player player) {
+        player.openInventory(instance.getInventory());
     }
 
     protected void setItem(int index, MenuItem menuItem) {
@@ -44,6 +50,13 @@ public abstract class Menu implements InventoryHolder {
     protected void setItem(int row, int column, MenuItem menuItem) {
         setItem(rcToIndex(row,column), menuItem);
     }
+    public void close() {
+        List<HumanEntity> viewers = inventory.getViewers();
+        for (HumanEntity viewer : viewers) {
+            viewer.closeInventory();
+        }
+    }
+
 
     @Nullable
     public MenuItem getItem(int index) {

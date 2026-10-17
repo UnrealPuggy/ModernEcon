@@ -87,15 +87,15 @@ public class ModernEcon extends JavaPlugin {
 
             ShopGui.openForPlayer(player);
             return Command.SINGLE_SUCCESS;
-        }).then(Commands.argument("id", StringArgumentType.word()).then(Commands.argument("item", ArgumentTypes.itemStack()).then(Commands.argument("buyPrice", DoubleArgumentType.doubleArg(-1)).then(Commands.argument("sellPrice", DoubleArgumentType.doubleArg(-1)).executes(ctx -> {
+        }).then(Commands.argument("id", StringArgumentType.word()).then(Commands.argument("item", ArgumentTypes.itemStack()).then(Commands.argument("buyPrice", StringArgumentType.word()).then(Commands.argument("sellPrice", StringArgumentType.word()).executes(ctx -> {
             String id = ctx.getArgument("id", String.class).toLowerCase();
             ItemStack item = ctx.getArgument("item", ItemStack.class);
-            double buyPrice = ctx.getArgument("buyPrice", Double.class);
-            double sellPrice = ctx.getArgument("sellPrice", Double.class);
+            String buyPrice = ctx.getArgument("buyPrice", String.class);
+            String sellPrice = ctx.getArgument("sellPrice", String.class);
 
 
 
-            _shopManager.shop_items().set(id, new ShopItem(id, item, EconomyUtil.doubleToCents(buyPrice), EconomyUtil.doubleToCents(sellPrice)));
+            _shopManager.shop_items().set(id, new ShopItem(id, item, EconomyUtil.parseToCents(buyPrice), EconomyUtil.parseToCents(sellPrice)));
             saveConfig();
             _shopManager.loadItems();
 
@@ -133,8 +133,9 @@ public class ModernEcon extends JavaPlugin {
                         String text = Objects.requireNonNullElse(view.getText("item_price"), "");
                         try {
 
-                            float price = Float.parseFloat(text);
-                            player.sendMessage("$" + price);
+                            long cents = EconomyUtil.parseToCents(text);
+                            player.sendMessage("¢" + cents);
+                            player.sendMessage("$"+EconomyUtil.formatCents(cents));
                         } catch (Exception _) {
                             player.sendMessage(Component.text("Invalid price entered! ", NamedTextColor.RED).append(Component.text("\"%s\"".formatted(text), NamedTextColor.GRAY)));
                         }

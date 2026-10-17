@@ -1,5 +1,7 @@
 package io.github.unrealpuggy.modernecon.Menu;
 
+import io.papermc.paper.datacomponent.DataComponentTypes;
+import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -8,6 +10,8 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 public class MenuItem implements Cloneable {
@@ -35,6 +39,8 @@ public class MenuItem implements Cloneable {
     public boolean removeFrom(Menu menu) {
         return menu.removeItem(this);
     }
+
+
     // Clicks
 
     public MenuItem onLeftClick(ClickCallback callback) {
@@ -89,7 +95,8 @@ public class MenuItem implements Cloneable {
         if (this.leftClickHandler != null)
             this.leftClickHandler.handle(player, this, event);
     }
-   public void onClick(Player player, InventoryClickEvent event) {
+
+    public void onClick(Player player, InventoryClickEvent event) {
         if (this.clickHandler != null)
             this.clickHandler.handle(player, this, event);
     }
@@ -116,6 +123,34 @@ public class MenuItem implements Cloneable {
 
         return this;
     }
+
+    // ItemStack modifiers
+    public MenuItem setDisplayName(Component component) {
+        if (this.item != null) {
+            this.item.setData(DataComponentTypes.ITEM_NAME, component);
+
+        }
+        return this;
+    }
+
+    public MenuItem setCount(int count) {
+        if (this.item != null) this.item.setAmount(count);
+
+        return this;
+    }
+    public MenuItem setLore(List<Component> li) {
+        if(this.item != null) this.item.lore(li);
+        return this;
+    }
+    public MenuItem addLore(List<Component> li) {
+        if(this.item != null) {
+            List<Component> lore = Objects.requireNonNullElse(item.lore(), new ArrayList<>());
+            lore.addAll(li);
+            item.lore(lore);
+        }
+        return this;
+    }
+
 
     public MenuItem clone() throws CloneNotSupportedException {
 //        MenuItem menuItem = (MenuItem) super.clone();

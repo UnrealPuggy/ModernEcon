@@ -44,7 +44,10 @@ public class MenuListener implements Listener {
         if (!menuClicked && (event.isShiftClick() || event.getClick() == ClickType.DOUBLE_CLICK) && menu.cancelDefault) {
             event.setCancelled(true);
         }
-
+        if(event.getClick() == ClickType.DOUBLE_CLICK) {
+            event.setCancelled(true);
+            return;
+        }
         Player player = (Player) event.getWhoClicked();
         if (menuClicked) {
             int slot = event.getSlot();
